@@ -1,10 +1,16 @@
 package Math::TotalBuilder;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)/g;
+our $VERSION = '1.10';
 
 =head1 NAME
 
 Math::TotalBuilder -- build a whole total out of valued pieces
+
+=head1 VERSION
+
+version 1.10
+
+ $Id: TotalBuilder.pm,v 1.6 2004/08/23 14:48:07 rjbs Exp $ 
 
 =head1 SYNOPSIS
 
@@ -33,12 +39,12 @@ similar calculations.
 =cut
 
 use strict;
+use Carp;
 
 use base qw(Exporter);
-
 our @EXPORT = qw(build total);
 
-=head1 Subroutines
+=head1 FUNCTIONS
 
 =over
 
@@ -86,8 +92,18 @@ sub build {
 		)[0]};
 	} elsif (ref $_[2] eq 'CODE') { 
 		return $_[2]->($_[0], $_[1]);
+	} else {
+		croak "bad third parameter to build";
 	}
 }
+
+=item C< build_basic(\%pieces, $total) >
+
+This is the basic algorithm used to build totals.  It uses as many of the
+largest unit will fit, then as many of the next largest, and so on, until it
+has tried to fit all the units in.
+
+=cut
 
 sub build_basic { 
 	my ($pieces, $total) = @_;
@@ -133,9 +149,9 @@ sub total {
 
 =head1 NOTES
 
-This module is hardly ready for use.  It needs much more error-handling.  The
-sub names may be changed in the future to avoid conflict, since they're very
-simple names, but probably not.  (If so, the current names will remain
+This module isn't exactly ready for use.  It needs much more error-handling.
+The sub names may be changed in the future to avoid conflict, since they're
+very simple names, but probably not.  (If so, the current names will remain
 exportable.)
 
 =head1 TODO
@@ -172,8 +188,8 @@ Ricardo SIGNES, E<lt>rjbs@cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-This is free software, and can be distributed under the same terms as perl
-itself.
+Copyright (C) 2004, Ricardo SIGNES.  This is free software, and can be
+distributed under the same terms as perl itself.
 
 =cut
 

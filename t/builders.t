@@ -1,7 +1,7 @@
+use Test::More tests => 6;
+
 use strict;
 use warnings;
-
-use Test::More 'no_plan';
 
 use_ok('Math::TotalBuilder');
 
@@ -35,3 +35,6 @@ ok(
 	),
   "contrived coderef list"
 );
+
+eval { build(\%coins, 10, \%coins) };
+ok($@, "third arg to build must be code or array ref");

@@ -1,10 +1,14 @@
 package Math::TotalBuilder::Common;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)/g;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)/g;
 
 =head1 NAME
 
 Math::TotalBuilder::Common -- common unit sets for building totals
+
+=head1 VERSION
+
+ $Id: Common.pm,v 1.2 2004/08/23 14:48:07 rjbs Exp $
 
 =head1 SYNOPSIS
 
@@ -44,7 +48,7 @@ our $currency_us = {
   dime    =>    10,
   nickel  =>     5,
   penny   =>     1
-}
+};
 
 =head2 time
 
