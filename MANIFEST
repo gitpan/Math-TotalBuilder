@@ -1,8 +1,12 @@
-MANIFEST			       This list of files
+MANIFEST                   This list of files
+Changes                    change log
 Makefile.PL                MakeMaker makefile
 
-lib/Math/TotalBuilder.pm   the module itself
+lib/Math/TotalBuilder.pm          the module itself
+lib/Math/TotalBuilder/Common.pm   common units
 
 t/basics.t                 basic tests
+t/builders.t               alternate builder tests
+t/pod.t                    POD tests
 
 META.yml                   Module meta-data (added by MakeMaker)

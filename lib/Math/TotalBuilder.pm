@@ -1,6 +1,6 @@
 package Math::TotalBuilder;
 
-our $VERSION = 0.02;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)/g;
 
 =head1 NAME
 
@@ -42,11 +42,11 @@ our @EXPORT = qw(build total);
 
 =over
 
-=item C< build(\%pieces, $total) >
+=item C< build(\%pieces, $total, \@code) >
 
   my %nicetime = build (
     { days => 86400, hours => 3600, minutes => 60, seconds => 1 },
-	39102
+    39102
   );
 
 This routine takes a hash of valued units and a total, and it returns the
@@ -65,26 +65,46 @@ to provide a solution for solveable instances, like this:
  # yields { kroener => 1, talen => 2, _remainder => 5 }
  # not    { talen => 7 }
 
-Future revisions may grow better.
+The third, optional, argument to C<build> must be either a coderef or a
+reference to an array of coderefs, each of which accept C<\%pieces> and
+C<$total> as arguments.  C<build> will return the result of building a total
+using the passed sub.  If an arrayref of coderefs was passed, C<build> will
+construct a total using each sub and return the total with the smallest
+remainder.
+
+If no third option is passed, C<&build_basic>, a very simple-minded algorithm,
+is assumed.
 
 =cut
 
 sub build {
-  my ($pieces, $total) = @_;
+	$_[2] ||= \&build_basic;
+	if (ref $_[2] eq 'ARRAY') { 
+		%{(
+			sort { $a->{_remainder} <=> $b->{_remainder} }
+			map  { { $_->($_[0], $_[1]) } } @{$_[2]}
+		)[0]};
+	} elsif (ref $_[2] eq 'CODE') { 
+		return $_[2]->($_[0], $_[1]);
+	}
+}
 
-  return unless $total;
+sub build_basic { 
+	my ($pieces, $total) = @_;
 
-  my %result;
+	return unless $total;
 
-  for (sort { $pieces->{$b} <=> $pieces->{$a} } keys %$pieces) {
-	next unless $pieces->{$_} <= $total;
-	$result{$_} = int( $total / $pieces->{$_} );
-	$total -= $result{$_} * $pieces->{$_};
-  }
+	my %result;
 
-  $result{_remainder} = $total if $total;
+	for (sort { $pieces->{$b} <=> $pieces->{$a} } keys %$pieces) {
+		next unless $pieces->{$_} <= $total;
+		$result{$_} = int( $total / $pieces->{$_} );
+		$total -= $result{$_} * $pieces->{$_};
+	}
 
-  return %result;
+	$result{_remainder} = $total if $total;
+
+	return %result;
 }
 
 =item C< total(\%pieces, \%set) >
@@ -100,13 +120,13 @@ to the definition in %pieces.
 =cut
 
 sub total {
-  my ($pieces, $set) = @_;
-  my $total;
-  for (keys %$set) {
-	die "invalid unit type: $_" unless exists $pieces->{$_};
-	$total += $set->{$_} * $pieces->{$_};
-  }
-  $total;
+	my ($pieces, $set) = @_;
+	my $total;
+	for (keys %$set) {
+		die "invalid unit type: $_" unless exists $pieces->{$_};
+		$total += $set->{$_} * $pieces->{$_};
+	}
+	$total;
 }
 
 =back
@@ -142,17 +162,13 @@ Allow use of bigfloats so that the smallest value need not be the base value.
 
 =item *
 
-Collect common units into a module.
-
-=item *
-
 Provide an option to try harder to build totals.
 
 =back
 
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< E<lt>rjbs@cpan.orgE<gt> >>
+Ricardo SIGNES, E<lt>rjbs@cpan.orgE<gt>
 
 =head1 COPYRIGHT
 

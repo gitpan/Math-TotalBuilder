@@ -1,0 +1,6 @@
+1.005 2004-06-09 22:33:39
+  - added Math::TotalBuilder::Common
+	- accept alternate coderefs to build totals
+
+0.02  2004-02-28 11:51:39
+  - added better handling of imperfect totals
