@@ -1,6 +1,6 @@
 package Math::TotalBuilder;
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 =head1 NAME
 
@@ -50,7 +50,22 @@ our @EXPORT = qw(build total);
   );
 
 This routine takes a hash of valued units and a total, and it returns the
-quantity of each unit required to build that total.
+quantity of each unit required to build that total.  If the total can't be
+cleanly built, the routine will return a set that builds the nearest total it
+can, without going over.  A special value, C<_remainder> will indicate by how
+many units it fell short.
+
+This module does not solve the knapsack problem, and hardly tries.  It may fail
+to provide a solution for solveable instances, like this:
+
+ my $difficult = build (
+   { kroener => 30, talen => 7 },
+   49
+ ); 
+ # yields { kroener => 1, talen => 2, _remainder => 5 }
+ # not    { talen => 7 }
+
+Future revisions may grow better.
 
 =cut
 
@@ -66,6 +81,8 @@ sub build {
 	$result{$_} = int( $total / $pieces->{$_} );
 	$total -= $result{$_} * $pieces->{$_};
   }
+
+  $result{_remainder} = $total if $total;
 
   return %result;
 }
@@ -85,7 +102,10 @@ to the definition in %pieces.
 sub total {
   my ($pieces, $set) = @_;
   my $total;
-  for (keys %$set) { $total += $set->{$_} * $pieces->{$_}; }
+  for (keys %$set) {
+	die "invalid unit type: $_" unless exists $pieces->{$_};
+	$total += $set->{$_} * $pieces->{$_};
+  }
   $total;
 }
 
@@ -111,11 +131,6 @@ Use subrefs for ever-extending pieces.  (I<e.g.>, "powers of two")
 Allow building a total from a given set of source units.  ("I have this many
 units to try and build into this total.  Can I?")
 
-=item *
-
-Catch all the trivial error cases: total can't be built, invalid units in set
-to total, etc.
-
 =item * 
 
 Allow for useful handling of pieces-sets with multiple pieces of the same
@@ -128,6 +143,12 @@ Allow use of bigfloats so that the smallest value need not be the base value.
 =item *
 
 Collect common units into a module.
+
+=item *
+
+Provide an option to try harder to build totals.
+
+=back
 
 =head1 AUTHOR
 

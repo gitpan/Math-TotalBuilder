@@ -37,14 +37,19 @@ ok(
 );
 
 ok(
+  eq_hash( { build(\%time, 1382400) }, { week => 2, day => 2 }),
+  "fortnight and two days"
+);
+
+ok(
   eq_hash( { build(\%tender, 4) }, { penny => 4 }),
   "four cents is four pennies"
 );
 
 ok(
   eq_hash(
-	{ build(\%tender, 9999) },
-	{ fifty => 1, twenty => 2, five => 1, two => 2, half => 1, quarter => 1, dime => 2, penny => 4 }
+	{ fifty => 1, twenty => 2, five => 1, two => 2, half => 1, quarter => 1, dime => 2, penny => 4 },
+	{ build(\%tender, 9999) }
   ),
   "units for 9999 cents"
 );
@@ -53,3 +58,15 @@ my $nnnn = { fifty => 1, twenty => 2, five => 1, two => 2, half => 1, quarter
 => 1, dime => 2, penny => 4 };
 
 is(total(\%tender, $nnnn), 9999, "ninety nine from units");
+
+eval { total(\%tender, { ten => 1, three => 3, dime => 9, penny => 9 }); };
+ok( $@, "queer as a three dollar bill");
+
+ok(
+  eq_hash(
+    { pound => 1, crown => 2, shilling => 1, _remainder => 10 },
+	{ build({ pound => 240, crown => 60, shilling => 12}, 382) }
+  ),
+  "can't build 382d total with no penny"
+);
+
