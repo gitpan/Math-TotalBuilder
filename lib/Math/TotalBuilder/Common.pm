@@ -1,6 +1,7 @@
-package Math::TotalBuilder::Common;
+use strict;
+use warnings;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)/g;
+package Math::TotalBuilder::Common;
 
 =head1 NAME
 
@@ -8,7 +9,13 @@ Math::TotalBuilder::Common -- common unit sets for building totals
 
 =head1 VERSION
 
- $Id: Common.pm,v 1.2 2004/08/23 14:48:07 rjbs Exp $
+version 1.101
+
+ $Id: /my/cs/projects/total/trunk/lib/Math/TotalBuilder/Common.pm 27913 2006-11-13T15:50:51.155685Z rjbs  $
+
+=cut
+
+our $VERSION = '1.101';
 
 =head1 SYNOPSIS
 
@@ -25,8 +32,6 @@ Math::TotalBuilder.
 
 =cut
 
-use strict;
-
 =head1 Unit Sets
 
 =head2 currency_us
@@ -35,7 +40,7 @@ United States currency: dollar bills, coins.  The base unit is a penny.
 
 =cut
 
-our $currency_us = {
+our $currency_us = { ## no critic PackageVar
   hundred => 10000,
   fifty   =>  5000,
   twenty  =>  2000,
@@ -56,13 +61,13 @@ Units of time: week, day, hour, minute, second.  The base unit is a second.
 
 =cut
 
-our %time = (
-  week    => 604800,
-  day     =>  86400,
-  hour    =>   3600,
-  minute  =>     60,
-  second  =>      1
-);
+our $time = { ## no critic PackageVar
+  week    => 604_800,
+  day     =>  86_400,
+  hour    =>   3_600,
+  minute  =>      60,
+  second  =>       1
+};
 
 =head1 AUTHOR
 

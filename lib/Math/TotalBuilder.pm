@@ -1,6 +1,9 @@
+use strict;
+use warnings;
+
 package Math::TotalBuilder;
 
-our $VERSION = '1.10';
+our $VERSION = '1.101';
 
 =head1 NAME
 
@@ -8,9 +11,9 @@ Math::TotalBuilder -- build a whole total out of valued pieces
 
 =head1 VERSION
 
-version 1.10
+version 1.101
 
- $Id: TotalBuilder.pm,v 1.6 2004/08/23 14:48:07 rjbs Exp $ 
+ $Id: /my/cs/projects/total/trunk/lib/Math/TotalBuilder.pm 27913 2006-11-13T15:50:51.155685Z rjbs  $ 
 
 =head1 SYNOPSIS
 
@@ -38,11 +41,10 @@ similar calculations.
 
 =cut
 
-use strict;
-use Carp;
+use Carp ();
 
 use base qw(Exporter);
-our @EXPORT = qw(build total);
+our @EXPORT = qw(build total); ## no critic Export
 
 =head1 FUNCTIONS
 
@@ -93,7 +95,7 @@ sub build {
 	} elsif (ref $_[2] eq 'CODE') { 
 		return $_[2]->($_[0], $_[1]);
 	} else {
-		croak "bad third parameter to build";
+		Carp::croak "bad third parameter to build";
 	}
 }
 
@@ -136,10 +138,10 @@ to the definition in %pieces.
 =cut
 
 sub total {
-	my ($pieces, $set) = @_;
+	my ($pieces, $set) = @_; ## no critic Ambiguous
 	my $total;
 	for (keys %$set) {
-		die "invalid unit type: $_" unless exists $pieces->{$_};
+		Carp::croak "invalid unit type: $_" unless exists $pieces->{$_};
 		$total += $set->{$_} * $pieces->{$_};
 	}
 	$total;
