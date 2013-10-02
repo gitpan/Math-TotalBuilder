@@ -1,19 +1,78 @@
 use strict;
 use warnings;
-
 package Math::TotalBuilder;
+{
+  $Math::TotalBuilder::VERSION = '1.102';
+}
+# ABSTRACT: build a whole total out of valued pieces
 
-our $VERSION = '1.101';
+# aka, solve the bin packing problem lol
+
+
+use Carp ();
+
+use Exporter 5.57 'import';
+our @EXPORT = qw(build total); ## no critic Export
+
+
+sub build {
+	$_[2] ||= \&build_basic;
+	if (ref $_[2] eq 'ARRAY') {
+		%{(
+			sort { $a->{_remainder} <=> $b->{_remainder} }
+			map  { { $_->($_[0], $_[1]) } } @{$_[2]}
+		)[0]};
+	} elsif (ref $_[2] eq 'CODE') {
+		return $_[2]->($_[0], $_[1]);
+	} else {
+		Carp::croak "bad third parameter to build";
+	}
+}
+
+
+sub build_basic {
+	my ($pieces, $total) = @_;
+
+	return unless $total;
+
+	my %result;
+
+	for (sort { $pieces->{$b} <=> $pieces->{$a} } keys %$pieces) {
+		next unless $pieces->{$_} <= $total;
+		$result{$_} = int( $total / $pieces->{$_} );
+		$total -= $result{$_} * $pieces->{$_};
+	}
+
+	$result{_remainder} = $total if $total;
+
+	return %result;
+}
+
+
+sub total {
+	my ($pieces, $set) = @_; ## no critic Ambiguous
+	my $total;
+	for (keys %$set) {
+		Carp::croak "invalid unit type: $_" unless exists $pieces->{$_};
+		$total += $set->{$_} * $pieces->{$_};
+	}
+	$total;
+}
+
+
+"Here's your change.";
+
+__END__
+
+=pod
 
 =head1 NAME
 
-Math::TotalBuilder -- build a whole total out of valued pieces
+Math::TotalBuilder - build a whole total out of valued pieces
 
 =head1 VERSION
 
-version 1.101
-
- $Id: /my/cs/projects/total/trunk/lib/Math/TotalBuilder.pm 27913 2006-11-13T15:50:51.155685Z rjbs  $ 
+version 1.102
 
 =head1 SYNOPSIS
 
@@ -39,13 +98,6 @@ tender to represent a quantity of money, to compose a mass from standard
 weights, to convert a difference of seconds to a set of time units, or other
 similar calculations.
 
-=cut
-
-use Carp ();
-
-use base qw(Exporter);
-our @EXPORT = qw(build total); ## no critic Export
-
 =head1 FUNCTIONS
 
 =over
@@ -69,7 +121,7 @@ to provide a solution for solveable instances, like this:
  my $difficult = build (
    { kroener => 30, talen => 7 },
    49
- ); 
+ );
  # yields { kroener => 1, talen => 2, _remainder => 5 }
  # not    { talen => 7 }
 
@@ -83,47 +135,11 @@ remainder.
 If no third option is passed, C<&build_basic>, a very simple-minded algorithm,
 is assumed.
 
-=cut
-
-sub build {
-	$_[2] ||= \&build_basic;
-	if (ref $_[2] eq 'ARRAY') { 
-		%{(
-			sort { $a->{_remainder} <=> $b->{_remainder} }
-			map  { { $_->($_[0], $_[1]) } } @{$_[2]}
-		)[0]};
-	} elsif (ref $_[2] eq 'CODE') { 
-		return $_[2]->($_[0], $_[1]);
-	} else {
-		Carp::croak "bad third parameter to build";
-	}
-}
-
 =item C< build_basic(\%pieces, $total) >
 
 This is the basic algorithm used to build totals.  It uses as many of the
 largest unit will fit, then as many of the next largest, and so on, until it
 has tried to fit all the units in.
-
-=cut
-
-sub build_basic { 
-	my ($pieces, $total) = @_;
-
-	return unless $total;
-
-	my %result;
-
-	for (sort { $pieces->{$b} <=> $pieces->{$a} } keys %$pieces) {
-		next unless $pieces->{$_} <= $total;
-		$result{$_} = int( $total / $pieces->{$_} );
-		$total -= $result{$_} * $pieces->{$_};
-	}
-
-	$result{_remainder} = $total if $total;
-
-	return %result;
-}
 
 =item C< total(\%pieces, \%set) >
 
@@ -134,18 +150,6 @@ sub build_basic {
 
 This routines returns the total value of the units in C<%set>, valued according
 to the definition in %pieces.
-
-=cut
-
-sub total {
-	my ($pieces, $set) = @_; ## no critic Ambiguous
-	my $total;
-	for (keys %$set) {
-		Carp::croak "invalid unit type: $_" unless exists $pieces->{$_};
-		$total += $set->{$_} * $pieces->{$_};
-	}
-	$total;
-}
 
 =back
 
@@ -169,12 +173,12 @@ Use subrefs for ever-extending pieces.  (I<e.g.>, "powers of two")
 Allow building a total from a given set of source units.  ("I have this many
 units to try and build into this total.  Can I?")
 
-=item * 
+=item *
 
 Allow for useful handling of pieces-sets with multiple pieces of the same
 value: always use one, randomly distribute, etc.
 
-=item * 
+=item *
 
 Allow use of bigfloats so that the smallest value need not be the base value.
 
@@ -186,13 +190,13 @@ Provide an option to try harder to build totals.
 
 =head1 AUTHOR
 
-Ricardo SIGNES, E<lt>rjbs@cpan.orgE<gt>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2004, Ricardo SIGNES.  This is free software, and can be
-distributed under the same terms as perl itself.
+This software is copyright (c) 2004 by Ricardo SIGNES.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-"Here's your change.";

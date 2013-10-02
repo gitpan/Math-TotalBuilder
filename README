@@ -1,21 +1,13 @@
-README for Math-TotalBuilder
 
-This module provides two subroutines, build and total, which can be used to
-handle quantities of valued items. These can be used to build the proper tender
-to represent a quantity of money, to compose a mass from standard weights, to
-convert a difference of seconds to a set of time units, or other similar
-calculations.
 
- use Math::TotalBuilder;
+This archive contains the distribution Math-TotalBuilder,
+version 1.102:
 
- my %lsd = ( pound => 240, shilling => 20, penny => 1 );
+  build a whole total out of valued pieces
 
- # units for 952 pence
- my %tender = build(\%lsd, 952);
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
- # total value of 3, 21, 98
- my $wealth = total(\%lsd, { pound => 3, shilling => 21, penny => 98 });
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
- # best better representation of 18, 6, 40
- my %moolah = build(\%lsd,
-   total (\%lsd, { pound => 18, shilling => 6, penny => 40 }));
+
